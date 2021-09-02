@@ -8,7 +8,6 @@ import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import { Redirect } from 'react-router-dom';
 
-// TODO: persist login status so that user stays logged in when redirecting pages
 const SignUp = ({ setUser }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');

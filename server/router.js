@@ -45,7 +45,6 @@ router.post('/signin', async (req, res) => {
   }
 });
 
-// TODO: define structure of database
 router.post('/signup', async (req, res) => {
   const { username, password, confirmPassword } = req.body;
 
