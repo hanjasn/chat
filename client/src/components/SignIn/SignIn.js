@@ -16,13 +16,13 @@ const SignUp = ({ setUser }) => {
 
   const handleSubmit = (event) => {
     event.preventDefault();
+    
     if (username.length === 0) {
       setErrorMessage('Username must be at least one character long');
     } else {
       axios.post('/signup', { username, password, confirmPassword }).then((res) => {
         if (res.data.user) {
           setUser(res.data.user);
-          window.location.href = '/chat';
         } else {
           setErrorMessage(res.data.message);
         }
@@ -31,11 +31,11 @@ const SignUp = ({ setUser }) => {
   };
 
   return (
-    <Col className="sign-up-form">
+    <Col className="sign-up-form" md='3'>
       <div className='font-small'>{errorMessage}</div>
       <div className="header">Sign Up</div>
       <Form onSubmit={handleSubmit}>
-        <Form.Group controlId="form-username">
+        <Form.Group controlId="signup-username">
           <Form.Control
             type="text"
             name="username"
@@ -43,7 +43,7 @@ const SignUp = ({ setUser }) => {
             onChange={(event) => setUsername(event.target.value)}
           />
         </Form.Group>
-        <Form.Group controlId="form-password">
+        <Form.Group controlId="signup-password">
           <Form.Control
             type="password"
             name="password"
@@ -83,9 +83,7 @@ const SignIn = ({ user, setUser }) => {
     } else {
       axios.post('/signin', { username, password }).then((res) => {
         if (res.data.user) {
-          setUser(res.data.user);
-          console.log(user);
-          window.location.href = '/chat';
+          setUser(res.data.user); // redirects to '/chat' since user is not null
         } else {
           setErrorMessage(res.data.message);
         }
@@ -97,14 +95,14 @@ const SignIn = ({ user, setUser }) => {
     return <Redirect to="/chat" />;
   }
   return (
-    <Container>
-      <Row className='forms d-flex justify-content-center'>
-        <Col className="sign-in-form">
+    <Container fluid className='signin-container'>
+      <Row className='d-flex justify-content-center'>
+        <Col className="sign-in-form" md='3'>
           <div className='font-small'>{errorMessage}</div>
           <div className="header">Sign In</div>
           {/* <Form action='/signin' method='POST'> */}
           <Form onSubmit={handleSubmit}>
-            <Form.Group controlId="form-username">
+            <Form.Group controlId="signin-username">
               <Form.Control
                 type="text"
                 name="username"
@@ -112,7 +110,7 @@ const SignIn = ({ user, setUser }) => {
                 onChange={(event) => setUsername(event.target.value)}
               />
             </Form.Group>
-            <Form.Group controlId="form-password">
+            <Form.Group controlId="signin-password">
               <Form.Control
                 type="password"
                 name="password"

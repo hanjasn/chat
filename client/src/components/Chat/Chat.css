@@ -1,0 +1,8 @@
+.chat-container {
+  background-color: black;
+  color: white;
+}
+
+.chat-container-row {
+  height: 92vh;
+}

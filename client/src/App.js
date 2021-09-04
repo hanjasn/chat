@@ -25,7 +25,7 @@ const App = () => {
         <SignIn user={user} setUser={setUser} />
       </Route>
       <Route path="/chat">
-        <Chat user={user} />
+        <Chat user={user} setUser={setUser} />
       </Route>
     </Router>
   );

@@ -2,10 +2,14 @@ h1 {
   font-size: 5em;
 }
 
-.home {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  -webkit-transform: translate(-50%, -50%);
-  transform: translate(-50%, -50%);
+.home-container {
+  background-color: black;
+  color: white;
+
+  min-height: 92%;  /* Fallback for browsers do NOT support vh unit */
+  min-height: 92vh; /* Header component has height of 8vh */
+  display: flex;
+  align-items: center;
+  padding-bottom: 5%;
+  justify-content: center;
 }

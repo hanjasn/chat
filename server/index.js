@@ -16,7 +16,13 @@ const io = socketio(server, {
   },
 });
 
-io.on('connection', (socket) => {});
+io.on('connection', (socket) => {
+  socket.on('join', (rooms) => {
+    for (const { id } of rooms) {
+      socket.join(id);
+    }
+  });
+});
 
 // app.use((req, res, next) => {
 //   res.header('Access-Control-Allow-Origin', origin);

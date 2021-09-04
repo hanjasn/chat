@@ -1,0 +1,16 @@
+.rooms-header {
+  height: 7%;
+}
+
+.rooms-title {
+  font-size: 1.5em;
+}
+
+.add-room-button {
+  width: 75%;
+  height: 90%;
+}
+
+.list-room {
+  height: 15%;
+}

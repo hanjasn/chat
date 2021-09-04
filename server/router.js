@@ -25,6 +25,50 @@ router.use(express.json()); // parses JSON data
 //   }
 // });
 
+router.get('/rooms/:username', async (req, res) => {
+  const { username } = req.params;
+
+  try {
+    await client.connect();
+    const dbUsers = client.db('database').collection('users');
+    const dbRooms = client.db('database').collection('rooms');
+    const { rooms: roomIDs } = await dbUsers.findOne({ username: username });
+    
+    let rooms = [];
+    for (const { id } of roomIDs) {
+      rooms.push(await dbRooms.findOne({ id: id }));
+    }
+    res.json({ rooms });
+  } finally {
+    await client.close();
+  }
+});
+
+router.post('/addRoom', async (req, res) => {
+  const { username, roomName } = req.body;
+
+  try {
+    await client.connect();
+    const lastRoomID = client.db('database').collection('lastRoomID');
+    const id = (await lastRoomID.findOne({ key: 'id' })).id + 1;
+    const room = {
+      id,
+      name: roomName,
+      users: [ { username } ],
+      messages: []
+    };
+    res.json({ room });
+    await lastRoomID.updateOne({ key: 'id' }, { $inc: { id: 1 } });
+
+    const users = client.db('database').collection('users');
+    const rooms = client.db('database').collection('rooms');
+    await users.updateOne({ username: username }, { $push: { rooms: { id: id } } });
+    await rooms.insertOne(room);
+  } finally {
+    await client.close();
+  }
+});
+
 router.post('/signin', async (req, res) => {
   const { username, password } = req.body;
 
@@ -59,7 +103,7 @@ router.post('/signup', async (req, res) => {
     } else if (password !== confirmPassword) {
       res.json({ user: null, message: 'Passwords do not match' });
     } else {
-      user = { username, password, rooms: {} };
+      user = { username, password, rooms: [] };
       await users.insertOne(user);
       delete user.password;
       res.json({ user, message: '' });
