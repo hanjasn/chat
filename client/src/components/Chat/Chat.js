@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Redirect } from 'react-router-dom';
-import Rooms from '../Rooms/Rooms';
-import Messages from '../Messages/Messages';
-import AddRoom from '../AddRoom/AddRoom';
+import Rooms from './Rooms/Rooms';
+import Messages from './Messages/Messages';
+import AddRoom from './AddRoom/AddRoom';
 import io from 'socket.io-client';
 import axios from 'axios';
 import './Chat.css';
@@ -18,15 +18,19 @@ const Chat = ({ user, setUser }) => {
   };
 
   const [rooms, setRooms] = useState([]);
-  const [roomID, setRoomID] = useState('');
+  const [roomID, setRoomID] = useState();
   const [roomName, setRoomName] = useState('');
   const [users, setUsers] = useState([]); // only usernames
   const [messages, setMessages] = useState([]);
-  const [message, setMessage] = useState(''); // TODO: when message is sent, send username and message to all users in room and store in database
+  const [message, setMessage] = useState('');
   const [display, setDisplay] = useState(displays.messages);
   const ENDPOINT = 'http://localhost:5000';
 
   useEffect(() => {
+    if (!user) {
+      return;
+    }
+
     axios.get(`/rooms/${user.username}`).then((res) => {
       setRooms(res.data.rooms);
     });
@@ -39,11 +43,44 @@ const Chat = ({ user, setUser }) => {
     };
   }, []);
 
+  useEffect(() => {
+    socket.on('message', ({ currentRoomID, username, text }) => {
+      setRooms(
+        rooms.map((room) =>
+          room.id === currentRoomID
+            ? { ...room, messages: [...room.messages, { username, text }] }
+            : room
+        )
+      );
+
+      if (currentRoomID === roomID) {
+        setMessages((messages) => [...messages, { username, text }]);
+      }
+    });
+
+    return () => {
+      socket.off('message');
+    };
+  });
+
   const setCurrentRoom = (room) => {
     setRoomID(room.id);
     setRoomName(room.name);
     setUsers(room.users);
     setMessages(room.messages);
+  };
+
+  const sendMessage = (event) => {
+    event.preventDefault();
+
+    if (message) {
+      socket.emit('sendMessage', {
+        currentRoomID: roomID,
+        username: user.username,
+        text: message,
+      });
+      setMessage('');
+    }
   };
 
   if (!user) {
@@ -59,7 +96,15 @@ const Chat = ({ user, setUser }) => {
           setCurrentRoom={setCurrentRoom}
         />
         {display === displays.messages ? (
-          <Messages roomName={roomName} users={users} messages={messages} />
+          <Messages
+            roomName={roomName}
+            users={users}
+            messages={messages}
+            currentUsername={user.username}
+            message={message}
+            setMessage={setMessage}
+            sendMessage={sendMessage}
+          />
         ) : (
           <AddRoom
             username={user.username}

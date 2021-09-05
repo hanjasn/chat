@@ -1,9 +1,5 @@
-h1 {
-  font-size: 5em;
-}
-
 .home-container {
-  background-color: black;
+  background-color: #141414;
   color: white;
 
   min-height: 92%;  /* Fallback for browsers do NOT support vh unit */
@@ -12,4 +8,15 @@ h1 {
   align-items: center;
   padding-bottom: 5%;
   justify-content: center;
+}
+
+.text-box {
+  background-color: #f3f3f3;
+  border-radius: 1em;
+  padding-left: 0.3em;
+  padding-right: 0.3em;
+
+  font-size: 5em;
+  color: black;
+  word-wrap: break-word;
 }

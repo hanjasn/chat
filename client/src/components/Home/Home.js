@@ -6,7 +6,7 @@ import Row from 'react-bootstrap/Row';
 const Home = () => (
   <Container fluid className='home-container vertical-center'>
     <Row>
-      <h1>Chat Application</h1>
+      <div className='text-box'>Chat Application</div>
     </Row>
   </Container>
 );

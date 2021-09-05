@@ -2,30 +2,32 @@ import { Link } from 'react-router-dom';
 import './Header.css';
 import Navbar from 'react-bootstrap/Navbar';
 import Container from 'react-bootstrap/Container';
-import Nav from 'react-bootstrap/Nav';
+import Col from 'react-bootstrap/Col';
 import Button from 'react-bootstrap/Button';
 
 const Header = ({ user, setUser }) => (
-  <Navbar className="navbar border border-dark" variant="dark">
-    <Container>
-      <Link to="/">
-        <Navbar.Brand>Chat</Navbar.Brand>
-      </Link>
-      <Nav className="mr-auto">
-        <Link className="navbar-link" to="/chat">
+  <Navbar className="navbar" bg='dark' variant="dark">
+    <Container fluid>
+      <Col>
+        <Link className='links' to="/">
+          <Navbar.Brand>Chat</Navbar.Brand>
+        </Link>
+        <Link className="navbar-link links" to="/chat">
           Messages
         </Link>
-      </Nav>
-      {user ? (
-        <Link onClick={() => setUser(null)} to="/">
-          {/* null because JSON cannot parse undefined */}
-          <Button variant="dark">sign out</Button>
-        </Link>
-      ) : (
-        <Link to="/signin">
-          <Button variant="primary">sign in</Button>
-        </Link>
-      )}
+      </Col>
+      <Col className='d-flex justify-content-end'>
+        {user ? (
+          <Link onClick={() => setUser(null)} to="/">
+            {/* null because JSON cannot parse undefined */}
+            <Button variant="dark">sign out</Button>
+          </Link>
+        ) : (
+          <Link to="/signin">
+            <Button variant="primary">sign in</Button>
+          </Link>
+        )}
+      </Col>
     </Container>
   </Navbar>
 );

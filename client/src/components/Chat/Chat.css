@@ -1,8 +1,10 @@
 .chat-container {
-  background-color: black;
+  background-color: #141414;
   color: white;
+  overflow-y: hidden;
 }
 
 .chat-container-row {
   height: 92vh;
 }
+

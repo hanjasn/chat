@@ -1,8 +1,10 @@
 const express = require('express');
 const http = require('http');
 const socketio = require('socket.io');
-const path = require('path')
+const path = require('path');
 const router = require('./router');
+const { MongoClient } = require('mongodb');
+const { mongoUsername, mongoPassword } = require('./keys');
 
 const PORT = process.env.PORT || 5000;
 const origin =
@@ -15,11 +17,31 @@ const io = socketio(server, {
     origin: origin,
   },
 });
+const uri = `mongodb+srv://${mongoUsername}:${mongoPassword}@database.po52g.mongodb.net/database?retryWrites=true&w=majority`;
+const client = new MongoClient(uri, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
 
 io.on('connection', (socket) => {
   socket.on('join', (rooms) => {
     for (const { id } of rooms) {
       socket.join(id);
+    }
+  });
+
+  socket.on('sendMessage', async ({ currentRoomID, username, text }) => {
+    io.to(currentRoomID).emit('message', { currentRoomID, username, text });
+
+    try {
+      await client.connect();
+      const rooms = client.db('database').collection('rooms');
+      await rooms.updateOne(
+        { id: currentRoomID },
+        { $push: { messages: { username, text } } }
+      );
+    } finally {
+      await client.close();
     }
   });
 });

@@ -11,6 +11,15 @@
   height: 90%;
 }
 
+.rooms-list {
+  height: 85vh;
+}
+
 .list-room {
-  height: 15%;
+  height: 12vh;
+}
+
+.list-room-options {
+  color: gray;
+  margin-left: 67%;
 }

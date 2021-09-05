@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Route } from 'react-router-dom';
-import 'bootstrap/dist/css/bootstrap.min.css';
 import Header from './components/Header/Header';
 import SignIn from './components/SignIn/SignIn';
 import Chat from './components/Chat/Chat';
 import Home from './components/Home/Home';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import './App.css';
 
 const App = () => {
   const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')));

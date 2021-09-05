@@ -1,8 +1,11 @@
 .navbar {
-  background-color: black;
   height: 8vh;
 }
 
 .navbar-link {
   color: gray;
+}
+
+.links {
+  text-decoration: none;
 }

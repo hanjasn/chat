@@ -35,7 +35,7 @@ const SignUp = ({ setUser }) => {
       <div className='font-small'>{errorMessage}</div>
       <div className="header">Sign Up</div>
       <Form onSubmit={handleSubmit}>
-        <Form.Group controlId="signup-username">
+        <Form.Group className='form-element' controlId="signup-username">
           <Form.Control
             type="text"
             name="username"
@@ -43,7 +43,7 @@ const SignUp = ({ setUser }) => {
             onChange={(event) => setUsername(event.target.value)}
           />
         </Form.Group>
-        <Form.Group controlId="signup-password">
+        <Form.Group className='form-element' controlId="signup-password">
           <Form.Control
             type="password"
             name="password"
@@ -54,7 +54,7 @@ const SignUp = ({ setUser }) => {
             Password must be at least 8 characters long
           </Form.Text>
         </Form.Group>
-        <Form.Group controlId="form-confirm-password">
+        <Form.Group className='form-element' controlId="form-confirm-password">
           <Form.Control
             type="password"
             name="confirm-password"
@@ -102,7 +102,7 @@ const SignIn = ({ user, setUser }) => {
           <div className="header">Sign In</div>
           {/* <Form action='/signin' method='POST'> */}
           <Form onSubmit={handleSubmit}>
-            <Form.Group controlId="signin-username">
+            <Form.Group className='form-element' controlId="signin-username">
               <Form.Control
                 type="text"
                 name="username"
@@ -110,7 +110,7 @@ const SignIn = ({ user, setUser }) => {
                 onChange={(event) => setUsername(event.target.value)}
               />
             </Form.Group>
-            <Form.Group controlId="signin-password">
+            <Form.Group className='form-element' controlId="signin-password">
               <Form.Control
                 type="password"
                 name="password"

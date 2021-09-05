@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import './AddRoom.css';
 import Col from 'react-bootstrap/Col';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
@@ -27,38 +28,38 @@ const AddRoom = ({
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    const { 
+    const {
       data: { room },
     } = await axios.post('/addRoom', { username, roomName: newRoomName });
     setUser((user) => {
       return {
         ...user,
-        rooms: [...user.rooms, { id: room.id }]
+        rooms: [...user.rooms, { id: room.id }],
       };
     });
-    setRooms((rooms) => {
-      return [...rooms, room];
-    });
+    setRooms((rooms) => [...rooms, room]);
     setRoomID(room.id);
     setRoomName(room.name);
     setUsers(room.users);
     setMessages(room.messages);
-    socket.emit('join', [ { id: room.id } ]);
+    socket.emit('join', [{ id: room.id }]);
     setDisplay(displays.messages);
   };
 
   return (
-    <Col className='border border-dark'>
+    <Col>
       <Form onSubmit={handleSubmit}>
-        <Form.Group className='w-50'>
-          <Form.Control 
-            type='text' 
-            name='room-name' 
-            placeholder='Room Name' 
-            onChange={(event) => setNewRoomName(event.target.value)} 
+        <Form.Group className="add-room-input w-50">
+          <Form.Control
+            type="text"
+            name="room-name"
+            placeholder="Room Name"
+            onChange={(event) => setNewRoomName(event.target.value)}
           />
         </Form.Group>
-        <Button variant='light' type='submit'>Create Room</Button>
+        <Button variant="light" type="submit">
+          Create Room
+        </Button>
       </Form>
     </Col>
   );
