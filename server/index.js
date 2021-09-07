@@ -35,14 +35,14 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('sendMessage', async ({ currentRoomID, username, text }) => {
-    io.in(currentRoomID).emit('message', { currentRoomID, username, text });
+  socket.on('sendMessage', async ({ messageRoomID, username, text }) => {
+    io.in(messageRoomID).emit('message', { messageRoomID, username, text });
 
     try {
       await client.connect();
       const rooms = client.db('database').collection('rooms');
       await rooms.updateOne(
-        { id: currentRoomID },
+        { id: messageRoomID },
         { $push: { messages: { username, text } } }
       );
     } finally {
@@ -59,22 +59,31 @@ io.on('connection', (socket) => {
         callback('User does not exist');
         await client.close();
         return;
-      } else {
-        callback('');
       }
 
-      const invitedRoom = user.invitedRooms.find((room) => room.id === roomInviteID);
-      if (!invitedRoom) {
-        await users.updateOne(
-          { username: username },
-          { $push: { invitedRooms: { id: roomInviteID } } }
-        );
+      const currentRoom = user.rooms.find((room) => room.id === roomInviteID);
+      if (currentRoom) {
+        callback('User is already in the room');
         await client.close();
+        return;
+      }
 
-        const user = getUser(username);
-        if (user) {
-          io.to(user.socketid).emit('invited');
-        }
+      callback('');
+
+      const invitedRoom = user.invitedRooms.find((room) => room.id === roomInviteID);
+      if (invitedRoom) {
+        await client.close();
+        return;
+      }
+      await users.updateOne(
+        { username: username },
+        { $push: { invitedRooms: { id: roomInviteID } } }
+      );
+      await client.close();
+
+      const userSocket = getUser(username);
+      if (userSocket) {
+        io.to(userSocket.socketid).emit('invited');
       }
     } finally {
     }

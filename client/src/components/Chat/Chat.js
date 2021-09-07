@@ -28,7 +28,7 @@ const Chat = ({ user, setUser }) => {
   const [users, setUsers] = useState([]); // usernames
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState('');
-  const [roomInviteID, setRoomInviteID] = useState();
+  const [roomInvite, setRoomInvite] = useState();
   const [display, setDisplay] = useState(displays.messages);
 
   // If user changes, rooms and invitedRooms will update as well
@@ -45,7 +45,7 @@ const Chat = ({ user, setUser }) => {
     })();
 
     socket = io(ENDPOINT);
-    socket.emit('connected', user.username);
+    socket.emit('connected', user.username); // id changes every time useEffect runs
     socket.emit('join', user.rooms); // socket joins all rooms in user's rooms list
 
     return () => {
@@ -55,16 +55,16 @@ const Chat = ({ user, setUser }) => {
   }, [user]);
 
   useEffect(() => {
-    socket.on('message', ({ currentRoomID, username, text }) => {
+    socket.on('message', ({ messageRoomID, username, text }) => {
       setRooms(
         rooms.map((room) =>
-          room.id === currentRoomID
+          room.id === messageRoomID
             ? { ...room, messages: [...room.messages, { username, text }] }
             : room
         )
       );
 
-      if (currentRoomID === roomID) {
+      if (messageRoomID === roomID) {
         setMessages((messages) => [...messages, { username, text }]);
       }
     });
@@ -93,7 +93,7 @@ const Chat = ({ user, setUser }) => {
 
     if (message) {
       socket.emit('sendMessage', {
-        currentRoomID: roomID,
+        messageRoomID: roomID,
         username: user.username,
         text: message,
       });
@@ -113,7 +113,10 @@ const Chat = ({ user, setUser }) => {
           rooms={rooms}
           invitedRooms={invitedRooms}
           setCurrentRoom={setCurrentRoom}
-          setRoomInviteID={setRoomInviteID}
+          setRoomInvite={setRoomInvite}
+          user={user}
+          setUser={setUser}
+          socket={socket}
         />
         {display === displays.messages ? (
           <Messages
@@ -140,7 +143,7 @@ const Chat = ({ user, setUser }) => {
           />
         ) : display === displays.inviteUser ? (
           <InviteUser
-            roomInviteID={roomInviteID}
+            roomInvite={roomInvite}
             socket={socket}
             setDisplay={setDisplay}
             displays={displays}

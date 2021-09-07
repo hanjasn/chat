@@ -4,11 +4,12 @@ import './InvitedRooms.css';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import CloseButton from 'react-bootstrap/CloseButton';
+import Button from 'react-bootstrap/Button';
+import axios from 'axios';
 
 /**
  * Ignore 'findDOMNode is deprecated in StrictMode' warning in console
- * 
- * TODO:
+ *
  * Only change rooms display and not main display
  * Add accept and decline buttons directly on room listing
  *
@@ -29,7 +30,38 @@ import CloseButton from 'react-bootstrap/CloseButton';
  *     invitedRooms will automatically update in useEffect after user changes
  *   Do not change roomsDisplay
  */
-const InvitedRooms = ({ setRoomsDisplay, roomsDisplays, invitedRooms }) => {
+const InvitedRooms = ({
+  setRoomsDisplay,
+  roomsDisplays,
+  invitedRooms,
+  user,
+  setUser,
+  socket
+}) => {
+  const acceptInvitation = async (invitedRoomID) => {
+    socket.emit('sendMessage', {
+      messageRoomID: invitedRoomID,
+      username: 'admin',
+      text: `${user.username} has joined the room`,
+    });
+
+    await axios.post('/invitation/accept', {
+      username: user.username,
+      roomID: invitedRoomID,
+    });
+    const res = await axios.get(`/user/${user.username}`);
+    setUser(res.data.user);
+  };
+
+  const declineInvitation = async (invitedRoomID) => {
+    await axios.post('/invitation/decline', {
+      username: user.username,
+      roomID: invitedRoomID,
+    });
+    const res = await axios.get(`/user/${user.username}`);
+    setUser(res.data.user);
+  };
+
   return (
     /* column displaying all rooms */
     <Col className="border border-dark" md="3">
@@ -58,6 +90,23 @@ const InvitedRooms = ({ setRoomsDisplay, roomsDisplays, invitedRooms }) => {
                   }}
                 >
                   {invitedRoom.name}
+                </Col>
+                <Col md="6">
+                  <Button
+                    className="accept-invite-button"
+                    variant="success"
+                    size="sm"
+                    onClick={() => acceptInvitation(invitedRoom.id)}
+                  >
+                    Accept
+                  </Button>
+                  <Button
+                    variant="danger"
+                    size="sm"
+                    onClick={() => declineInvitation(invitedRoom.id)}
+                  >
+                    Decline
+                  </Button>
                 </Col>
               </Row>
             ))}

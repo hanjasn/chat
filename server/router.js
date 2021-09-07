@@ -92,8 +92,46 @@ router.post('/createRoom', async (req, res) => {
   }
 });
 
+router.post('/invitation/accept', async (req, res) => {
+  const { username, roomID } = req.body;
+
+  try {
+    await client.connect();
+    const users = client.db('database').collection('users');
+    const rooms = client.db('database').collection('rooms');
+    await users.updateOne(
+      { username: username },
+      { $pull: { invitedRooms: { id: roomID } } }
+    );
+    await users.updateOne({ username: username }, { $push: { rooms: { id: roomID } } });
+    await rooms.updateOne({ id: roomID }, { $push: { users: { username: username } } });
+  } finally {
+    await client.close();
+    res.end();
+  }
+});
+
+router.post('/invitation/decline', async (req, res) => {
+  const { username, roomID } = req.body;
+
+  try {
+    await client.connect();
+    const users = client.db('database').collection('users');
+    await users.updateOne(
+      { username: username },
+      { $pull: { invitedRooms: { id: roomID } } }
+    );
+  } finally {
+    await client.close();
+    res.end();
+  }
+});
+
 router.post('/signin', async (req, res) => {
   const { username, password } = req.body;
+  if (username === 'admin') {
+    res.json({ user: null, message: 'Reserved account' });
+  }
 
   try {
     await client.connect();

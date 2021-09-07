@@ -13,7 +13,7 @@ const ChatRooms = ({
   roomsDisplays,
   rooms,
   setCurrentRoom,
-  setRoomInviteID
+  setRoomInvite,
 }) => {
   return (
     /* column displaying all rooms */
@@ -64,7 +64,7 @@ const ChatRooms = ({
                     <Dropdown.Menu>
                       <Dropdown.Item onClick={() => {
                         setDisplay(displays.inviteUser);
-                        setRoomInviteID(room.id);
+                        setRoomInvite(room);
                       }}>
                         Invite user
                       </Dropdown.Item>

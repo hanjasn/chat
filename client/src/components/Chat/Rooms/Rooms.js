@@ -9,7 +9,10 @@ const Rooms = ({
   rooms,
   invitedRooms,
   setCurrentRoom,
-  setRoomInviteID,
+  setRoomInvite,
+  user,
+  setUser,
+  socket,
 }) => {
   const roomsDisplays = {
     invitedRooms: 0,
@@ -23,6 +26,9 @@ const Rooms = ({
       setRoomsDisplay={setRoomsDisplay}
       roomsDisplays={roomsDisplays}
       invitedRooms={invitedRooms}
+      user={user}
+      setUser={setUser}
+      socket={socket}
     />
   ) : (
     <ChatRooms
@@ -32,7 +38,7 @@ const Rooms = ({
       roomsDisplays={roomsDisplays}
       rooms={rooms}
       setCurrentRoom={setCurrentRoom}
-      setRoomInviteID={setRoomInviteID}
+      setRoomInvite={setRoomInvite}
     />
   );
 };

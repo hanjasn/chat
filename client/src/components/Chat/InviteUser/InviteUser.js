@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Col from 'react-bootstrap/Col';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
@@ -19,14 +19,19 @@ import Button from 'react-bootstrap/Button';
  *   Emit 'invite' event to socket.id
  *   When 'invite' event is received, get User from server so that User state is updated
  */
-const InviteUser = ({ roomInviteID, socket, setDisplay, displays }) => {
+const InviteUser = ({ roomInvite, socket, setDisplay, displays }) => {
   const [username, setUsername] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+
+  useEffect(() => {
+    setUsername('');
+    setErrorMessage('');
+  }, [roomInvite]);
 
   const handleSubmit = (event) => {
     event.preventDefault();
 
-    socket.emit('invite', { username, roomInviteID }, (error) => {
+    socket.emit('invite', { username, roomInviteID: roomInvite.id }, (error) => {
       if (error) {
         setErrorMessage(error);
       } else {
@@ -38,6 +43,7 @@ const InviteUser = ({ roomInviteID, socket, setDisplay, displays }) => {
   return (
     <Col>
       <div>{errorMessage}</div>
+      <div>{roomInvite.name}</div>
       <Form className="w-50" onSubmit={handleSubmit}>
         <Form.Group className="add-room-input">
           <Form.Control
