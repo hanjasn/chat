@@ -62,7 +62,7 @@ const SignUp = ({ setUser }) => {
             onChange={(event) => setConfirmPassword(event.target.value)}
           />
         </Form.Group>
-        <Button className="btn-block" size="sm" variant="dark" type="submit">
+        <Button className="w-100" size="sm" variant="dark" type="submit">
           Sign Up
         </Button>
       </Form>
@@ -118,7 +118,7 @@ const SignIn = ({ user, setUser }) => {
                 onChange={(event) => setPassword(event.target.value)}
               />
             </Form.Group>
-            <Button className="btn-block" size="sm" variant="dark" type="submit">
+            <Button className="w-100" size="sm" variant="dark" type="submit">
               Sign In
             </Button>
           </Form>

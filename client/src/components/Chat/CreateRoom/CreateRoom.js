@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import './AddRoom.css';
+import './CreateRoom.css';
 import Col from 'react-bootstrap/Col';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 
-const AddRoom = ({
+const CreateRoom = ({
   username,
   setUser,
   setRooms,
@@ -30,7 +30,7 @@ const AddRoom = ({
 
     const {
       data: { room },
-    } = await axios.post('/addRoom', { username, roomName: newRoomName });
+    } = await axios.post('/createRoom', { username, roomName: newRoomName });
     setUser((user) => {
       return {
         ...user,
@@ -48,16 +48,17 @@ const AddRoom = ({
 
   return (
     <Col>
-      <Form onSubmit={handleSubmit}>
-        <Form.Group className="add-room-input w-50">
+      <Form className='w-50' onSubmit={handleSubmit}>
+        <Form.Group className="add-room-input">
           <Form.Control
             type="text"
             name="room-name"
             placeholder="Room Name"
+            value={newRoomName}
             onChange={(event) => setNewRoomName(event.target.value)}
           />
         </Form.Group>
-        <Button variant="light" type="submit">
+        <Button className='w-100' variant="light" type="submit">
           Create Room
         </Button>
       </Form>
@@ -65,4 +66,4 @@ const AddRoom = ({
   );
 };
 
-export default AddRoom;
+export default CreateRoom;

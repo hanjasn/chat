@@ -2,46 +2,57 @@ import React, { useEffect, useState } from 'react';
 import { Redirect } from 'react-router-dom';
 import Rooms from './Rooms/Rooms';
 import Messages from './Messages/Messages';
-import AddRoom from './AddRoom/AddRoom';
+import CreateRoom from './CreateRoom/CreateRoom';
+import InviteUser from './InviteUser/InviteUser';
 import io from 'socket.io-client';
 import axios from 'axios';
 import './Chat.css';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
 
 let socket;
 
 const Chat = ({ user, setUser }) => {
+  const ENDPOINT = 'http://localhost:5000';
   const displays = {
     messages: 0,
-    addRoom: 1,
+    createRoom: 1,
+    inviteUser: 2,
   };
 
-  const [rooms, setRooms] = useState([]);
+  const [rooms, setRooms] = useState([]); // { id, name, users, messages }
+  const [invitedRooms, setInvitedRooms] = useState([]); // { id, name, users }
   const [roomID, setRoomID] = useState();
   const [roomName, setRoomName] = useState('');
-  const [users, setUsers] = useState([]); // only usernames
+  const [users, setUsers] = useState([]); // usernames
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState('');
+  const [roomInviteID, setRoomInviteID] = useState();
   const [display, setDisplay] = useState(displays.messages);
-  const ENDPOINT = 'http://localhost:5000';
 
+  // If user changes, rooms and invitedRooms will update as well
   useEffect(() => {
     if (!user) {
       return;
     }
 
-    axios.get(`/rooms/${user.username}`).then((res) => {
+    (async () => {
+      let res = await axios.get(`/rooms/${user.username}`);
       setRooms(res.data.rooms);
-    });
+      res = await axios.get(`/invitedRooms/${user.username}`);
+      setInvitedRooms(res.data.invitedRooms);
+    })();
 
     socket = io(ENDPOINT);
+    socket.emit('connected', user.username);
     socket.emit('join', user.rooms); // socket joins all rooms in user's rooms list
 
     return () => {
+      socket.emit('disconnected', user.username);
       socket.off();
     };
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     socket.on('message', ({ currentRoomID, username, text }) => {
@@ -58,8 +69,15 @@ const Chat = ({ user, setUser }) => {
       }
     });
 
+    socket.on('invited', () => {
+      axios.get(`/user/${user.username}`).then((res) => {
+        setUser(res.data.user);
+      });
+    });
+
     return () => {
       socket.off('message');
+      socket.off('invited');
     };
   });
 
@@ -90,10 +108,12 @@ const Chat = ({ user, setUser }) => {
     <Container fluid className="chat-container">
       <Row className="chat-container-row">
         <Rooms
-          displays={displays}
           setDisplay={setDisplay}
+          displays={displays}
           rooms={rooms}
+          invitedRooms={invitedRooms}
           setCurrentRoom={setCurrentRoom}
+          setRoomInviteID={setRoomInviteID}
         />
         {display === displays.messages ? (
           <Messages
@@ -105,8 +125,8 @@ const Chat = ({ user, setUser }) => {
             setMessage={setMessage}
             sendMessage={sendMessage}
           />
-        ) : (
-          <AddRoom
+        ) : display === displays.createRoom ? (
+          <CreateRoom
             username={user.username}
             setUser={setUser}
             setRooms={setRooms}
@@ -118,6 +138,15 @@ const Chat = ({ user, setUser }) => {
             displays={displays}
             setDisplay={setDisplay}
           />
+        ) : display === displays.inviteUser ? (
+          <InviteUser
+            roomInviteID={roomInviteID}
+            socket={socket}
+            setDisplay={setDisplay}
+            displays={displays}
+          />
+        ) : (
+          <Col>error: display does not exist</Col>
         )}
       </Row>
     </Container>

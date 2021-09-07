@@ -1,0 +1,31 @@
+.rooms-header {
+  height: 7%;
+}
+
+.rooms-title {
+  font-size: 1.5em;
+}
+
+.add-room-button {
+  margin-left: 5%;
+}
+
+.rooms-list-row {
+  height: 85vh;
+}
+
+.rooms-list-col {
+  width: 96%;
+}
+
+.list-room {
+  height: 12vh;
+}
+
+.list-room-name {
+  margin-left: 3%;
+}
+
+.list-room-options {
+  color: gray;
+}

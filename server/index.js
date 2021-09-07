@@ -5,6 +5,7 @@ const path = require('path');
 const router = require('./router');
 const { MongoClient } = require('mongodb');
 const { mongoUsername, mongoPassword } = require('./keys');
+const { addUser, removeUser, getUser } = require('./users');
 
 const PORT = process.env.PORT || 5000;
 const origin =
@@ -24,6 +25,10 @@ const client = new MongoClient(uri, {
 });
 
 io.on('connection', (socket) => {
+  socket.on('connected', (username) => {
+    addUser(username, socket.id);
+  });
+
   socket.on('join', (rooms) => {
     for (const { id } of rooms) {
       socket.join(id);
@@ -31,7 +36,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on('sendMessage', async ({ currentRoomID, username, text }) => {
-    io.to(currentRoomID).emit('message', { currentRoomID, username, text });
+    io.in(currentRoomID).emit('message', { currentRoomID, username, text });
 
     try {
       await client.connect();
@@ -43,6 +48,40 @@ io.on('connection', (socket) => {
     } finally {
       await client.close();
     }
+  });
+
+  socket.on('invite', async ({ username, roomInviteID }, callback) => {
+    try {
+      await client.connect();
+      const users = client.db('database').collection('users');
+      const user = await users.findOne({ username: username });
+      if (!user) {
+        callback('User does not exist');
+        await client.close();
+        return;
+      } else {
+        callback('');
+      }
+
+      const invitedRoom = user.invitedRooms.find((room) => room.id === roomInviteID);
+      if (!invitedRoom) {
+        await users.updateOne(
+          { username: username },
+          { $push: { invitedRooms: { id: roomInviteID } } }
+        );
+        await client.close();
+
+        const user = getUser(username);
+        if (user) {
+          io.to(user.socketid).emit('invited');
+        }
+      }
+    } finally {
+    }
+  });
+
+  socket.on('disconnected', (username) => {
+    removeUser(username);
   });
 });
 

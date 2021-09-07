@@ -12,18 +12,18 @@ const client = new MongoClient(uri, {
 router.use(express.json()); // parses JSON data
 // router.use(express.urlencoded({ extended: false })); // parses form data
 
-// router.get('/user/:username', async (req, res) => {
-//   const { username } = req.params;
+router.get('/user/:username', async (req, res) => {
+  const { username } = req.params;
 
-//   try {
-//     await client.connect();
-//     const users = client.db('database').collection('users');
-//     const user = await users.findOne({ username: username });
-//     res.json({ user });
-//   } finally {
-//     await client.close();
-//   }
-// });
+  try {
+    await client.connect();
+    const users = client.db('database').collection('users');
+    const user = await users.findOne({ username: username });
+    res.json({ user });
+  } finally {
+    await client.close();
+  }
+});
 
 router.get('/rooms/:username', async (req, res) => {
   const { username } = req.params;
@@ -33,7 +33,7 @@ router.get('/rooms/:username', async (req, res) => {
     const dbUsers = client.db('database').collection('users');
     const dbRooms = client.db('database').collection('rooms');
     const { rooms: roomIDs } = await dbUsers.findOne({ username: username });
-    
+
     let rooms = [];
     for (const { id } of roomIDs) {
       rooms.push(await dbRooms.findOne({ id: id }));
@@ -44,7 +44,30 @@ router.get('/rooms/:username', async (req, res) => {
   }
 });
 
-router.post('/addRoom', async (req, res) => {
+router.get('/invitedRooms/:username', async (req, res) => {
+  const { username } = req.params;
+
+  try {
+    await client.connect();
+    const dbUsers = client.db('database').collection('users');
+    const dbRooms = client.db('database').collection('rooms');
+    const { invitedRooms: invitedRoomIDs } = await dbUsers.findOne({
+      username: username,
+    });
+
+    let invitedRooms = [];
+    for (const { id } of invitedRoomIDs) {
+      const invitedRoom = await dbRooms.findOne({ id: id });
+      delete invitedRoom.messages;
+      invitedRooms.push(invitedRoom);
+    }
+    res.json({ invitedRooms });
+  } finally {
+    await client.close();
+  }
+});
+
+router.post('/createRoom', async (req, res) => {
   const { username, roomName } = req.body;
 
   try {
@@ -54,8 +77,8 @@ router.post('/addRoom', async (req, res) => {
     const room = {
       id,
       name: roomName,
-      users: [ { username } ],
-      messages: []
+      users: [{ username }],
+      messages: [],
     };
     res.json({ room });
     await lastRoomID.updateOne({ key: 'id' }, { $inc: { id: 1 } });
