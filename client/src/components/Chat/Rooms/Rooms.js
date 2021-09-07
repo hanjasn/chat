@@ -39,6 +39,9 @@ const Rooms = ({
       rooms={rooms}
       setCurrentRoom={setCurrentRoom}
       setRoomInvite={setRoomInvite}
+      user={user}
+      setUser={setUser}
+      socket={socket}
     />
   );
 };

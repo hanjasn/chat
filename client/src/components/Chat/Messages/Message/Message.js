@@ -5,11 +5,11 @@ import './Message.css';
 const Message = ({ message: { username, text }, currentUsername }) => {
   return username === 'admin' ? (
     <div className="message-container d-flex justify-content-center">
-      <div className="message-box bg-dark text-light">{emojify(text)}</div>
+      <div className="message-box margin-no-name bg-dark text-light">{emojify(text)}</div>
     </div>
   ) : username === currentUsername ? (
     <div className="message-container d-flex justify-content-end">
-      <div className="message-box margin-current-user bg-primary text-light">
+      <div className="message-box margin-no-name bg-primary text-light">
         {emojify(text)}
       </div>
     </div>

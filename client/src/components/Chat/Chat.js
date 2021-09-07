@@ -82,10 +82,17 @@ const Chat = ({ user, setUser }) => {
   });
 
   const setCurrentRoom = (room) => {
-    setRoomID(room.id);
-    setRoomName(room.name);
-    setUsers(room.users);
-    setMessages(room.messages);
+    if (!room) {
+      setRoomID();
+      setRoomName('');
+      setUsers([]);
+      setMessages([]);
+    } else {
+      setRoomID(room.id);
+      setRoomName(room.name);
+      setUsers(room.users);
+      setMessages(room.messages);
+    }
   };
 
   const sendMessage = (event) => {

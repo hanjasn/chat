@@ -5,6 +5,7 @@ import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import Button from 'react-bootstrap/Button';
 import Dropdown from 'react-bootstrap/Dropdown';
+import axios from 'axios';
 
 const ChatRooms = ({
   setDisplay,
@@ -14,7 +15,23 @@ const ChatRooms = ({
   rooms,
   setCurrentRoom,
   setRoomInvite,
+  user,
+  setUser,
+  socket,
 }) => {
+  const leaveRoom = async (roomID) => {
+    socket.emit('sendMessage', {
+      messageRoomID: roomID,
+      username: 'admin',
+      text: `${user.username} has left the room`,
+    });
+
+    await axios.post('/leaveRoom', { username: user.username, roomID });
+    const res = await axios.get(`/user/${user.username}`);
+    setUser(res.data.user);
+    setCurrentRoom(null);
+  };
+
   return (
     /* column displaying all rooms */
     <Col className="border border-dark" md="3">
@@ -24,7 +41,7 @@ const ChatRooms = ({
         <Col className="d-flex justify-content-end" md="4">
           <div>
             <Dropdown>
-              <Dropdown.Toggle variant='dark' />
+              <Dropdown.Toggle variant="dark" />
               <Dropdown.Menu>
                 <Dropdown.Item
                   onClick={() => {
@@ -62,14 +79,19 @@ const ChatRooms = ({
                   <Dropdown className="list-room-options">
                     <Dropdown.Toggle variant="dark" />
                     <Dropdown.Menu>
-                      <Dropdown.Item onClick={() => {
-                        setDisplay(displays.inviteUser);
-                        setRoomInvite(room);
-                      }}>
+                      <Dropdown.Item
+                        onClick={() => {
+                          setDisplay(displays.inviteUser);
+                          setRoomInvite(room);
+                        }}
+                      >
                         Invite user
                       </Dropdown.Item>
                       {/* TODO */}
-                      <Dropdown.Item onClick={null}>Show users</Dropdown.Item>
+                      <Dropdown.Item onClick={() => null}>Show users</Dropdown.Item>
+                      <Dropdown.Item onClick={() => leaveRoom(room.id)}>
+                        Leave Room
+                      </Dropdown.Item>
                     </Dropdown.Menu>
                   </Dropdown>
                 </Col>

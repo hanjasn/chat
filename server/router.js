@@ -127,10 +127,27 @@ router.post('/invitation/decline', async (req, res) => {
   }
 });
 
+router.post('/leaveRoom', async (req, res) => {
+  const { username, roomID } = req.body;
+
+  try {
+    await client.connect();
+    const users = client.db('database').collection('users');
+    const rooms = client.db('database').collection('rooms');
+    await users.updateOne({ username: username }, { $pull: { rooms: { id: roomID } } });
+    await rooms.updateOne({ id: roomID }, { $pull: { users: { username: username } } });
+  } finally {
+    await client.close();
+    res.end();
+  }
+});
+
 router.post('/signin', async (req, res) => {
   const { username, password } = req.body;
+  
   if (username === 'admin') {
     res.json({ user: null, message: 'Reserved account' });
+    return;
   }
 
   try {
