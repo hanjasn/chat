@@ -3,3 +3,7 @@
   width: 100%;
   margin-bottom: 1.5vh;
 }
+
+.messages-scroll-window {
+  width: 110%;
+}

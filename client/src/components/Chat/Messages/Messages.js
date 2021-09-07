@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import Message from './Message/Message';
 import Input from './Input/Input';
 import './Messages.css';
@@ -15,6 +15,16 @@ const Messages = ({
   setMessage,
   sendMessage,
 }) => {
+  const messagesEndRef = useRef();
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+  };
+
   return (
     <Col>
       {/* top bar with name of room and other options */}
@@ -23,15 +33,16 @@ const Messages = ({
       </Row>
       {/* messages displayed */}
       <Row>
-        <div className="messages">
-          <Scrollbar>
-          {messages.map((message, i) => (
-            <div key={i}>
-              <Message message={message} currentUsername={currentUsername} />
-            </div>
-          ))}
+        <Col className="messages">
+          <Scrollbar style={{ width: '101.3%' }} /* className styling doesn't work */>
+            {messages.map((message, i) => (
+              <div key={i}>
+                <Message message={message} currentUsername={currentUsername} />
+              </div>
+            ))}
+            <div ref={messagesEndRef} />
           </Scrollbar>
-        </div>
+        </Col>
       </Row>
       {/* message input bar */}
       <Input message={message} setMessage={setMessage} sendMessage={sendMessage} />
