@@ -4,17 +4,16 @@ import Rooms from './Rooms/Rooms';
 import Messages from './Messages/Messages';
 import CreateRoom from './CreateRoom/CreateRoom';
 import InviteUser from './InviteUser/InviteUser';
-import io from 'socket.io-client';
-import axios from 'axios';
 import './Chat.css';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
+import io from 'socket.io-client';
+import axios from 'axios';
 
 let socket;
 
 const Chat = ({ user, setUser }) => {
-  const ENDPOINT = 'http://localhost:5000';
   const displays = {
     messages: 0,
     createRoom: 1,
@@ -44,7 +43,7 @@ const Chat = ({ user, setUser }) => {
       setInvitedRooms(res.data.invitedRooms);
     })();
 
-    socket = io(ENDPOINT);
+    socket = io(process.env.REACT_APP_ENDPOINT);
     socket.emit('connected', user.username); // id changes every time useEffect runs
     socket.emit('join', user.rooms); // socket joins all rooms in user's rooms list
 
@@ -55,6 +54,10 @@ const Chat = ({ user, setUser }) => {
   }, [user]);
 
   useEffect(() => {
+    if (!user) {
+      return;
+    }
+
     socket.on('message', ({ messageRoomID, username, text }) => {
       setRooms(
         rooms.map((room) =>

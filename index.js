@@ -4,12 +4,11 @@ const socketio = require('socket.io');
 const path = require('path');
 const router = require('./router');
 const { MongoClient } = require('mongodb');
-const { mongoUsername, mongoPassword } = require('./keys');
+require('dotenv').config();
 const { addUser, removeUser, getUser } = require('./users');
 
 const PORT = process.env.PORT || 5000;
-const origin =
-  PORT === 5000 ? 'http://localhost:3000' : 'https://jh-chat.herokuapp.com';
+const origin = PORT === 5000 ? 'http://localhost:3000' : process.env.ORIGIN;
 
 const app = express();
 const server = http.createServer(app);
@@ -18,8 +17,7 @@ const io = socketio(server, {
     origin: origin,
   },
 });
-const uri = `mongodb+srv://${mongoUsername}:${mongoPassword}@database.po52g.mongodb.net/database?retryWrites=true&w=majority`;
-const client = new MongoClient(uri, {
+const client = new MongoClient(process.env.MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
@@ -46,7 +44,6 @@ io.on('connection', (socket) => {
         { $push: { messages: { username, text } } }
       );
     } finally {
-      await client.close();
     }
   });
 
@@ -57,14 +54,14 @@ io.on('connection', (socket) => {
       const user = await users.findOne({ username: username });
       if (!user) {
         callback('User does not exist');
-        await client.close();
+
         return;
       }
 
       const currentRoom = user.rooms.find((room) => room.id === roomInviteID);
       if (currentRoom) {
         callback('User is already in the room');
-        await client.close();
+
         return;
       }
 
@@ -72,14 +69,12 @@ io.on('connection', (socket) => {
 
       const invitedRoom = user.invitedRooms.find((room) => room.id === roomInviteID);
       if (invitedRoom) {
-        await client.close();
         return;
       }
       await users.updateOne(
         { username: username },
         { $push: { invitedRooms: { id: roomInviteID } } }
       );
-      await client.close();
 
       const userSocket = getUser(username);
       if (userSocket) {
@@ -103,9 +98,13 @@ io.on('connection', (socket) => {
 //   next();
 // });
 
-app.use(express.static(path.resolve(__dirname, '../client/build')));
+app.use(express.static(path.join(__dirname, './client/build')));
 
 app.use(router);
+
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, './client/build', 'index.html'));
+});
 
 server.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}...`);

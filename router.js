@@ -1,10 +1,9 @@
 const express = require('express');
 const { MongoClient } = require('mongodb');
-const { mongoUsername, mongoPassword } = require('./keys');
+require('dotenv').config();
 
 const router = express.Router();
-const uri = `mongodb+srv://${mongoUsername}:${mongoPassword}@database.po52g.mongodb.net/database?retryWrites=true&w=majority`;
-const client = new MongoClient(uri, {
+const client = new MongoClient(process.env.MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
@@ -21,7 +20,6 @@ router.get('/user/:username', async (req, res) => {
     const user = await users.findOne({ username: username });
     res.json({ user });
   } finally {
-    await client.close();
   }
 });
 
@@ -40,7 +38,6 @@ router.get('/rooms/:username', async (req, res) => {
     }
     res.json({ rooms });
   } finally {
-    await client.close();
   }
 });
 
@@ -63,7 +60,6 @@ router.get('/invitedRooms/:username', async (req, res) => {
     }
     res.json({ invitedRooms });
   } finally {
-    await client.close();
   }
 });
 
@@ -88,7 +84,6 @@ router.post('/createRoom', async (req, res) => {
     await users.updateOne({ username: username }, { $push: { rooms: { id: id } } });
     await rooms.insertOne(room);
   } finally {
-    await client.close();
   }
 });
 
@@ -106,7 +101,6 @@ router.post('/invitation/accept', async (req, res) => {
     await users.updateOne({ username: username }, { $push: { rooms: { id: roomID } } });
     await rooms.updateOne({ id: roomID }, { $push: { users: { username: username } } });
   } finally {
-    await client.close();
     res.end();
   }
 });
@@ -122,7 +116,6 @@ router.post('/invitation/decline', async (req, res) => {
       { $pull: { invitedRooms: { id: roomID } } }
     );
   } finally {
-    await client.close();
     res.end();
   }
 });
@@ -137,14 +130,13 @@ router.post('/leaveRoom', async (req, res) => {
     await users.updateOne({ username: username }, { $pull: { rooms: { id: roomID } } });
     await rooms.updateOne({ id: roomID }, { $pull: { users: { username: username } } });
   } finally {
-    await client.close();
     res.end();
   }
 });
 
 router.post('/signin', async (req, res) => {
   const { username, password } = req.body;
-  
+
   if (username === 'admin') {
     res.json({ user: null, message: 'Reserved account' });
     return;
@@ -163,7 +155,6 @@ router.post('/signin', async (req, res) => {
       res.json({ user, message: '' });
     }
   } finally {
-    await client.close();
   }
 });
 
@@ -187,7 +178,6 @@ router.post('/signup', async (req, res) => {
       res.json({ user, message: '' });
     }
   } finally {
-    await client.close();
   }
 });
 

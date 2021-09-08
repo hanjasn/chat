@@ -88,7 +88,7 @@ const ChatRooms = ({
                         Invite user
                       </Dropdown.Item>
                       {/* TODO */}
-                      <Dropdown.Item onClick={() => null}>Show users</Dropdown.Item>
+                      {/* <Dropdown.Item onClick={() => null}>Show users</Dropdown.Item> */}
                       <Dropdown.Item onClick={() => leaveRoom(room.id)}>
                         Leave Room
                       </Dropdown.Item>
