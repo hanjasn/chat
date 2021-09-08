@@ -9,7 +9,8 @@ const Rooms = ({
   rooms,
   invitedRooms,
   setCurrentRoom,
-  setRoomInvite,
+  setRoomClicked,
+  setShowUsers,
   user,
   setUser,
   socket,
@@ -38,7 +39,8 @@ const Rooms = ({
       roomsDisplays={roomsDisplays}
       rooms={rooms}
       setCurrentRoom={setCurrentRoom}
-      setRoomInvite={setRoomInvite}
+      setRoomClicked={setRoomClicked}
+      setShowUsers={setShowUsers}
       user={user}
       setUser={setUser}
       socket={socket}

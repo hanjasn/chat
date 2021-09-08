@@ -24,10 +24,11 @@ const Chat = ({ user, setUser }) => {
   const [invitedRooms, setInvitedRooms] = useState([]); // { id, name, users }
   const [roomID, setRoomID] = useState();
   const [roomName, setRoomName] = useState('');
-  const [users, setUsers] = useState([]); // usernames
+  const [users, setUsers] = useState([]); // [..., { username }]
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState('');
-  const [roomInvite, setRoomInvite] = useState();
+  const [roomClicked, setRoomClicked] = useState();
+  const [showUsers, setShowUsers] = useState(false);
   const [display, setDisplay] = useState(displays.messages);
 
   // If user changes, rooms and invitedRooms will update as well
@@ -60,11 +61,11 @@ const Chat = ({ user, setUser }) => {
 
     socket.on('message', ({ messageRoomID, username, text }) => {
       setRooms(
-        rooms.map((room) =>
-          room.id === messageRoomID
+        rooms.map((room) => {
+          return room.id === messageRoomID
             ? { ...room, messages: [...room.messages, { username, text }] }
-            : room
-        )
+            : room;
+        })
       );
 
       if (messageRoomID === roomID) {
@@ -78,9 +79,42 @@ const Chat = ({ user, setUser }) => {
       });
     });
 
+    socket.on('addUserToRoom', ({ username, invitedRoomID }) => {
+      console.log(rooms); // TODO: delete
+      setRooms(
+        rooms.map((room) => {
+          return room.id === invitedRoomID
+            ? { ...room, users: [...room.users, { username }] }
+            : room;
+        })
+      );
+
+      if (roomID === invitedRoomID) {
+        setUsers([...users, { username }]);
+      }
+    });
+
+    socket.on('removeUserFromRoom', ({ username, leftRoomID }) => {
+      setRooms(
+        rooms.map((room) => {
+          return room.id === leftRoomID
+            ? {
+                ...room,
+                users: room.users.filter((user) => user.username !== username),
+              }
+            : room;
+        })
+      );
+
+      if (roomID === leftRoomID) {
+        setUsers(users.filter((user) => user.username !== username));
+      }
+    });
+
     return () => {
       socket.off('message');
       socket.off('invited');
+      socket.off('addUserToRoom');
     };
   });
 
@@ -123,7 +157,8 @@ const Chat = ({ user, setUser }) => {
           rooms={rooms}
           invitedRooms={invitedRooms}
           setCurrentRoom={setCurrentRoom}
-          setRoomInvite={setRoomInvite}
+          setRoomClicked={setRoomClicked}
+          setShowUsers={setShowUsers}
           user={user}
           setUser={setUser}
           socket={socket}
@@ -132,6 +167,8 @@ const Chat = ({ user, setUser }) => {
           <Messages
             roomName={roomName}
             users={users}
+            showUsers={showUsers}
+            setShowUsers={setShowUsers}
             messages={messages}
             currentUsername={user.username}
             message={message}
@@ -153,7 +190,7 @@ const Chat = ({ user, setUser }) => {
           />
         ) : display === displays.inviteUser ? (
           <InviteUser
-            roomInvite={roomInvite}
+            roomClicked={roomClicked}
             socket={socket}
             setDisplay={setDisplay}
             displays={displays}

@@ -1,0 +1,29 @@
+.users-header {
+  height: 7%;
+}
+
+.users-title {
+  font-size: 1.5em;
+  margin-left: 37%;
+}
+
+.users-close-button {
+  margin-top: 30%;
+}
+
+.users-list-row {
+  width: 108%;
+  height: 85vh;
+}
+
+.users-list-col {
+  width: 95%;
+}
+
+.list-user {
+  height: 12vh;
+}
+
+.list-user-name {
+  margin-left: 3%;
+}

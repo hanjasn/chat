@@ -17,7 +17,7 @@ const Input = ({ message, setMessage, sendMessage }) => {
             onChange={(event) => setMessage(event.target.value)}
           />
         </Col>
-        <Col>
+        <Col className='send-button'>
           <Button type='submit'>Send</Button>
         </Col>
       </Row>

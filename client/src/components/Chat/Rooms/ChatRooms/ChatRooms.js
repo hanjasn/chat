@@ -14,7 +14,8 @@ const ChatRooms = ({
   roomsDisplays,
   rooms,
   setCurrentRoom,
-  setRoomInvite,
+  setRoomClicked,
+  setShowUsers,
   user,
   setUser,
   socket,
@@ -25,6 +26,7 @@ const ChatRooms = ({
       username: 'admin',
       text: `${user.username} has left the room`,
     });
+    socket.emit('userLeft', { username: user.username, leftRoomID: roomID });
 
     await axios.post('/leaveRoom', { username: user.username, roomID });
     const res = await axios.get(`/user/${user.username}`);
@@ -82,13 +84,17 @@ const ChatRooms = ({
                       <Dropdown.Item
                         onClick={() => {
                           setDisplay(displays.inviteUser);
-                          setRoomInvite(room);
+                          setRoomClicked(room);
                         }}
                       >
                         Invite user
                       </Dropdown.Item>
-                      {/* TODO */}
-                      {/* <Dropdown.Item onClick={() => null}>Show users</Dropdown.Item> */}
+                      <Dropdown.Item onClick={() => {
+                        setCurrentRoom(room);
+                        setShowUsers(true);
+                      }}>
+                        Show users
+                      </Dropdown.Item>
                       <Dropdown.Item onClick={() => leaveRoom(room.id)}>
                         Leave Room
                       </Dropdown.Item>

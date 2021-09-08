@@ -47,7 +47,7 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('invite', async ({ username, roomInviteID }, callback) => {
+  socket.on('invite', async ({ username, roomClickedID }, callback) => {
     try {
       await client.connect();
       const users = client.db('database').collection('users');
@@ -58,7 +58,7 @@ io.on('connection', (socket) => {
         return;
       }
 
-      const currentRoom = user.rooms.find((room) => room.id === roomInviteID);
+      const currentRoom = user.rooms.find((room) => room.id === roomClickedID);
       if (currentRoom) {
         callback('User is already in the room');
 
@@ -67,13 +67,13 @@ io.on('connection', (socket) => {
 
       callback('');
 
-      const invitedRoom = user.invitedRooms.find((room) => room.id === roomInviteID);
+      const invitedRoom = user.invitedRooms.find((room) => room.id === roomClickedID);
       if (invitedRoom) {
         return;
       }
       await users.updateOne(
         { username: username },
-        { $push: { invitedRooms: { id: roomInviteID } } }
+        { $push: { invitedRooms: { id: roomClickedID } } }
       );
 
       const userSocket = getUser(username);
@@ -82,6 +82,14 @@ io.on('connection', (socket) => {
       }
     } finally {
     }
+  });
+
+  socket.on('userJoined', ({ username, invitedRoomID }) => {
+    io.in(invitedRoomID).emit('addUserToRoom', { username, invitedRoomID });
+  });
+
+  socket.on('userLeft', ({ username, leftRoomID }) => {
+    io.in(leftRoomID).emit('removeUserFromRoom', { username, leftRoomID });
   });
 
   socket.on('disconnected', (username) => {

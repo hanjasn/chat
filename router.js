@@ -18,6 +18,7 @@ router.get('/user/:username', async (req, res) => {
     await client.connect();
     const users = client.db('database').collection('users');
     const user = await users.findOne({ username: username });
+    delete user.password;
     res.json({ user });
   } finally {
   }
@@ -172,7 +173,7 @@ router.post('/signup', async (req, res) => {
     } else if (password !== confirmPassword) {
       res.json({ user: null, message: 'Passwords do not match' });
     } else {
-      user = { username, password, rooms: [] };
+      user = { username, password, rooms: [], invitedRooms: [] };
       await users.insertOne(user);
       delete user.password;
       res.json({ user, message: '' });

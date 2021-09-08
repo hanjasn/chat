@@ -36,7 +36,7 @@ const InvitedRooms = ({
   invitedRooms,
   user,
   setUser,
-  socket
+  socket,
 }) => {
   const acceptInvitation = async (invitedRoomID) => {
     socket.emit('sendMessage', {
@@ -44,6 +44,7 @@ const InvitedRooms = ({
       username: 'admin',
       text: `${user.username} has joined the room`,
     });
+    socket.emit('userJoined', { username: user.username, invitedRoomID });
 
     await axios.post('/invitation/accept', {
       username: user.username,
