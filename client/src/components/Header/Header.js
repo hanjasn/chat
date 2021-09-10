@@ -18,7 +18,10 @@ const Header = ({ user, setUser }) => (
       </Col>
       <Col className='d-flex justify-content-end'>
         {user ? (
-          <Link onClick={() => setUser(null)} to="/">
+          <Link onClick={() => {
+            setUser(null);
+            localStorage.clear();
+          }} to="/">
             {/* null because JSON cannot parse undefined */}
             <Button variant="dark">sign out</Button>
           </Link>

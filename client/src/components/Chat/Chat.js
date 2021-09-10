@@ -20,8 +20,12 @@ const Chat = ({ user, setUser }) => {
     inviteUser: 2,
   };
 
-  const [rooms, setRooms] = useState([]); // { id, name, users, messages }
-  const [invitedRooms, setInvitedRooms] = useState([]); // { id, name, users }
+  // { id, name, users, messages }
+  const [rooms, setRooms] = useState(JSON.parse(localStorage.getItem('rooms')) || []);
+  // { id, name, users }
+  const [invitedRooms, setInvitedRooms] = useState(
+    JSON.parse(localStorage.getItem('invitedRooms')) || []
+  );
   const [roomID, setRoomID] = useState();
   const [roomName, setRoomName] = useState('');
   const [users, setUsers] = useState([]); // [..., { username }]
@@ -30,6 +34,14 @@ const Chat = ({ user, setUser }) => {
   const [roomClicked, setRoomClicked] = useState();
   const [showUsers, setShowUsers] = useState(false);
   const [display, setDisplay] = useState(displays.messages);
+
+  useEffect(() => {
+    localStorage.setItem('rooms', JSON.stringify(rooms));
+  }, [rooms]);
+
+  useEffect(() => {
+    localStorage.setItem('invitedRooms', JSON.stringify(invitedRooms));
+  }, [invitedRooms]);
 
   // If user changes, rooms and invitedRooms will update as well
   useEffect(() => {
@@ -75,7 +87,8 @@ const Chat = ({ user, setUser }) => {
 
     socket.on('invited', (invitedRoom) => {
       setInvitedRooms([...invitedRooms, invitedRoom]);
-      setUser((user) => ({ // This will rerun useEffect which is not necessary for this process
+      setUser((user) => ({
+        // This will rerun useEffect which is not necessary for this process
         ...user,
         invitedRooms: [...user.invitedRooms, invitedRoom.id],
       }));
