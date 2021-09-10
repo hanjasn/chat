@@ -1,6 +1,7 @@
 const express = require('express');
 const { MongoClient } = require('mongodb');
 require('dotenv').config();
+const bcrypt = require('bcrypt');
 
 const router = express.Router();
 const client = new MongoClient(process.env.MONGO_URI, {
@@ -18,7 +19,7 @@ router.get('/user/:username', async (req, res) => {
     await client.connect();
     const users = client.db('database').collection('users');
     const user = await users.findOne({ username: username });
-    delete user.password;
+    delete user.hash;
     res.json({ user });
   } finally {
   }
@@ -139,7 +140,7 @@ router.post('/signin', async (req, res) => {
   const { username, password } = req.body;
 
   if (username === 'admin') {
-    res.json({ user: null, message: 'Reserved account' });
+    res.json({ user: null, message: 'Reserved user' });
     return;
   }
 
@@ -149,18 +150,26 @@ router.post('/signin', async (req, res) => {
     const user = await users.findOne({ username: username });
     if (!user) {
       res.json({ user: null, message: 'User does not exist' });
-    } else if (password !== user.password) {
-      res.json({ user: null, message: 'Password is incorrect' });
-    } else {
-      delete user.password;
-      res.json({ user, message: '' });
+      return;
     }
+    const passwordCorrect = await bcrypt.compare(password, user.hash);
+    if (!passwordCorrect) {
+      res.json({ user: null, message: 'Password is incorrect' });
+      return;
+    }
+    delete user.hash;
+    res.json({ user, message: '' });
   } finally {
   }
 });
 
 router.post('/signup', async (req, res) => {
   const { username, password, confirmPassword } = req.body;
+
+  if (username === 'admin') {
+    res.json({ user: null, message: 'Reserved user' });
+    return;
+  }
 
   try {
     await client.connect();
@@ -173,9 +182,12 @@ router.post('/signup', async (req, res) => {
     } else if (password !== confirmPassword) {
       res.json({ user: null, message: 'Passwords do not match' });
     } else {
-      user = { username, password, rooms: [], invitedRooms: [] };
+      const saltRounds = 10;
+      const hash = await bcrypt.hash(password, saltRounds);
+
+      user = { username, hash, rooms: [], invitedRooms: [] };
       await users.insertOne(user);
-      delete user.password;
+      delete user.hash;
       res.json({ user, message: '' });
     }
   } finally {
