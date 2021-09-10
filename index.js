@@ -50,14 +50,6 @@ io.on('connection', (socket) => {
   socket.on('invite', async ({ username, roomClickedID }, callback) => {
     try {
       await client.connect();
-      // client
-      const userSocket = getUser(username);
-      if (userSocket) {
-        const rooms = client.db('database').collection('rooms');
-        const room = await rooms.findOne({ id: roomClickedID });
-        delete room.messages;
-        io.to(userSocket.socketid).emit('invited', room);
-      }
 
       // database
       const users = client.db('database').collection('users');
@@ -83,6 +75,15 @@ io.on('connection', (socket) => {
         { username: username },
         { $push: { invitedRooms: { id: roomClickedID } } }
       );
+
+      // client
+      const userSocket = getUser(username);
+      if (userSocket) {
+        const rooms = client.db('database').collection('rooms');
+        const room = await rooms.findOne({ id: roomClickedID });
+        delete room.messages;
+        io.to(userSocket.socketid).emit('invited', room);
+      }
     } finally {
     }
   });
