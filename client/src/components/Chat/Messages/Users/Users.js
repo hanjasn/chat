@@ -7,7 +7,6 @@ import CloseButton from 'react-bootstrap/CloseButton';
 
 // users is an array of usernames
 const Users = ({ users, setShowUsers }) => {
-  // TODO: check if width of <Messages /> is okay
   return (
     <Col md="3">
       <Row className="users-header">

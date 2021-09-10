@@ -73,14 +73,15 @@ const Chat = ({ user, setUser }) => {
       }
     });
 
-    socket.on('invited', () => {
-      axios.get(`/user/${user.username}`).then((res) => {
-        setUser(res.data.user);
-      });
+    socket.on('invited', (invitedRoom) => {
+      setInvitedRooms([...invitedRooms, invitedRoom]);
+      setUser((user) => ({ // This will rerun useEffect which is not necessary for this process
+        ...user,
+        invitedRooms: [...user.invitedRooms, invitedRoom.id],
+      }));
     });
 
     socket.on('addUserToRoom', ({ username, invitedRoomID }) => {
-      console.log(rooms); // TODO: delete
       setRooms(
         rooms.map((room) => {
           return room.id === invitedRoomID
@@ -115,6 +116,7 @@ const Chat = ({ user, setUser }) => {
       socket.off('message');
       socket.off('invited');
       socket.off('addUserToRoom');
+      socket.off('removeUserFromRoom');
     };
   });
 

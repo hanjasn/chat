@@ -50,18 +50,26 @@ io.on('connection', (socket) => {
   socket.on('invite', async ({ username, roomClickedID }, callback) => {
     try {
       await client.connect();
+      // client
+      const userSocket = getUser(username);
+      if (userSocket) {
+        const rooms = client.db('database').collection('rooms');
+        const room = await rooms.findOne({ id: roomClickedID });
+        delete room.messages;
+        io.to(userSocket.socketid).emit('invited', room);
+      }
+
+      // database
       const users = client.db('database').collection('users');
       const user = await users.findOne({ username: username });
       if (!user) {
         callback('User does not exist');
-
         return;
       }
 
       const currentRoom = user.rooms.find((room) => room.id === roomClickedID);
       if (currentRoom) {
         callback('User is already in the room');
-
         return;
       }
 
@@ -75,11 +83,6 @@ io.on('connection', (socket) => {
         { username: username },
         { $push: { invitedRooms: { id: roomClickedID } } }
       );
-
-      const userSocket = getUser(username);
-      if (userSocket) {
-        io.to(userSocket.socketid).emit('invited');
-      }
     } finally {
     }
   });
